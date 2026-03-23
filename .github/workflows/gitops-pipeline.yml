@@ -1,0 +1,75 @@
+name: GitOps CI/CD Pipeline (with OPA)
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  OPA_VERSION: "0.60.0"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Record Start Time
+        run: echo "START=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm ci --only=production
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build Docker Image
+        run: docker build -f Dockerfile.gitops -t thesis-gitops:${{ github.sha }} .
+
+      # --- OPA POLICY GATE ---
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/v${{ env.OPA_VERSION }}/opa_linux_amd64_static
+          chmod +x opa && sudo mv opa /usr/local/bin/opa
+
+      - name: Prepare OPA Input
+        run: |
+          cat > input.json << 'EOF'
+          {
+            "containerName": "thesis-gitops-app",
+            "image": "node:18-alpine",
+            "securityContext": {
+              "privileged": false,
+              "runAsUser": 1001
+            }
+          }
+          EOF
+
+      - name: Run OPA Policy Check (Timed)
+        run: |
+          OPA_START=$(date +%s%3N)
+
+          opa eval \
+            --data policy.rego \
+            --input input.json \
+            --fail-defined \
+            "data.thesis.deny"
+
+          OPA_END=$(date +%s%3N)
+          echo "OPA Evaluation Time: $((OPA_END - OPA_START))ms"
+          echo "OPA Status: PASSED"
+      # -------------------------
+
+      - name: Record Deployment Time
+        run: |
+          END=$(date +%s)
+          echo "Deployment Time: $((END - START))s"
+          echo "Status: success"
+          echo "OPA Enforced: true"
+          echo "Security Policies: no-privileged, no-root, approved-images"

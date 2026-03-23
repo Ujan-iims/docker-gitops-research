@@ -1,0 +1,23 @@
+{
+  "name": "docker-gitops-research",
+  "version": "1.0.0",
+  "description": "Study comparing traditional and GitOps-based CI/CD pipelines with OPA policy enforcement in Docker environments.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/app.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ujan-iims/docker-gitops-research.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ujan-iims/docker-gitops-research/issues"
+  },
+  "homepage": "https://github.com/Ujan-iims/docker-gitops-research#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

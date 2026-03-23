@@ -1,0 +1,20 @@
+# GitOps Pipeline - Security Hardened (OPA policies enforced at deploy)
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+# Create non-root user (OPA policy: no-root-containers)
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -u 1001
+USER 1001
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "server.js"]

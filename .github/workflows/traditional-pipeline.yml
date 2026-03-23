@@ -1,0 +1,38 @@
+name: Traditional CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Record Start Time
+        run: echo "START=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build Docker Image
+        run: docker build -f Dockerfile.traditional -t thesis-traditional:${{ github.sha }} .
+
+      - name: Record Deployment Time
+        run: |
+          END=$(date +%s)
+          echo "Deployment Time: $((END - START))s"
+          echo "Status: success"
+          echo "OPA Enforced: false"
+          echo "Security Policies: none"
