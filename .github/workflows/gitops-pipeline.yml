@@ -55,16 +55,22 @@ jobs:
         run: |
           OPA_START=$(date +%s%3N)
 
-          opa eval \
+          VIOLATIONS=$(opa eval \
             --data policy.rego \
             --input input.json \
-            --fail-defined \
-            "data.thesis.deny"
-
+            --format raw \
+            "count(data.thesis.deny)")
+          
+          echo "OPA Violations: $VIOLATIONS"
           OPA_END=$(date +%s%3N)
           echo "OPA Evaluation Time: $((OPA_END - OPA_START))ms"
-          echo "OPA Status: PASSED"
-      # -------------------------
+          
+          if [ "$VIOLATIONS" -gt "0" ]; then
+            echo "OPA POLICY GATE: BLOCKED - $VIOLATIONS violation(s) found"
+            exit 1
+          else
+            echo "OPA POLICY GATE: PASSED"
+          fi
 
       - name: Record Deployment Time
         run: |
