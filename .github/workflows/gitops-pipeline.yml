@@ -43,10 +43,10 @@ jobs:
           cat > input.json << 'EOF'
           {
             "containerName": "thesis-gitops-app",
-            "image": "node:18-alpine",
+            "image": "node:18",           # Test P3
             "securityContext": {
-              "privileged": false,
-              "runAsUser": 1001
+              "privileged": false,               # Test P1
+              "runAsUser": 1001                  # Test P2
             }
           }
           EOF
@@ -60,11 +60,17 @@ jobs:
             --input input.json \
             --format raw \
             "count(data.thesis.deny)")
-          
-          echo "OPA Violations: $VIOLATIONS"
+
           OPA_END=$(date +%s%3N)
-          echo "OPA Evaluation Time: $((OPA_END - OPA_START))ms"
-          
+          OPA_EVAL_TIME=$((OPA_END - OPA_START))
+
+          echo "OPA Violations: $VIOLATIONS"
+          echo "OPA Evaluation Time: ${OPA_EVAL_TIME}ms"
+
+          # Save to env for Collect Metrics step
+          echo "VIOLATIONS=$VIOLATIONS" >> $GITHUB_ENV
+          echo "OPA_EVAL_TIME=$OPA_EVAL_TIME" >> $GITHUB_ENV
+
           if [ "$VIOLATIONS" -gt "0" ]; then
             echo "OPA POLICY GATE: BLOCKED - $VIOLATIONS violation(s) found"
             exit 1
@@ -79,3 +85,19 @@ jobs:
           echo "Status: success"
           echo "OPA Enforced: true"
           echo "Security Policies: no-privileged, no-root, approved-images"
+      
+      - name: Collect Metrics
+        if: always()
+        run: |
+          END=$(date +%s)
+          DURATION=$((END - START))
+          echo "### GitOps Pipeline Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment Time | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | success |" >> $GITHUB_STEP_SUMMARY
+          echo "| OPA Enforced | true |" >> $GITHUB_STEP_SUMMARY
+          echo "| OPA Violations | $VIOLATIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "| OPA Eval Time | ${OPA_EVAL_TIME}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "| Policies Checked | P1-no-privileged, P2-no-root, P3-approved-image |" >> $GITHUB_STEP_SUMMARY

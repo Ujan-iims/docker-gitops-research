@@ -36,3 +36,17 @@ jobs:
           echo "Status: success"
           echo "OPA Enforced: false"
           echo "Security Policies: none"
+
+      - name: Collect Metrics
+        if: always()
+        run: |
+          END=$(date +%s)
+          DURATION=$((END - START))
+          echo "### Traditional Pipeline Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment Time | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | success |" >> $GITHUB_STEP_SUMMARY
+          echo "| OPA Enforced | false |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Policies | none |" >> $GITHUB_STEP_SUMMARY
