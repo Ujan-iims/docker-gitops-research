@@ -22,6 +22,6 @@ deny[msg] {
 
 # P3: Block unapproved base images
 deny[msg] {
-  not input.image in approved_images
+  not approved_images[input.image]
   msg := sprintf("P3: Image '%v' is not in the approved list", [input.image])
 }
