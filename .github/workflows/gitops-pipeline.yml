@@ -43,7 +43,7 @@ jobs:
           cat > input.json << 'EOF'
           {
             "containerName": "thesis-gitops-app",
-            "image": "node:18",           # Test P3
+            "image": "node:18-alpine",           # Test P3
             "securityContext": {
               "privileged": false,               # Test P1
               "runAsUser": 1001                  # Test P2
