@@ -40,17 +40,7 @@ jobs:
           chmod +x opa && sudo mv opa /usr/local/bin/opa
 
       - name: Prepare OPA Input
-        run: |
-          cat > input.json << 'EOF'
-          {
-            "containerName": "thesis-gitops-app",
-            "image": "node:18-alpine",           # Test P3
-            "securityContext": {
-              "privileged": false,               # Test P1
-              "runAsUser": 1001                  # Test P2
-            }
-          }
-          EOF
+        run: echo "Using input.json from repository"
 
       - name: Run OPA Policy Check (Timed)
         run: |
