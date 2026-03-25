@@ -1,24 +1,8 @@
 {
-  "_comment": "OPA Policy Input Schema - thesis container security evaluation",
-  "_author": "Ujan Man Shakya | LC00015002689",
-  "_usage": "Pass this JSON as --input to opa eval during CI pipeline",
   "containerName": "thesis-gitops-app",
   "image": "node:18-alpine",
   "securityContext": {
     "privileged": false,
-    "runAsUser": 1001,
-    "runAsNonRoot": true,
-    "allowPrivilegeEscalation": false,
-    "readOnlyRootFilesystem": true,
-    "capabilities": {
-      "drop": [
-        "ALL"
-      ]
-    }
-  },
-  "labels": {
-    "pipeline.type": "gitops",
-    "image.approved": "true",
-    "security.profile": "hardened"
+    "runAsUser": 1001
   }
 }
