@@ -3,6 +3,7 @@ name: GitOps CI/CD Pipeline (with OPA)
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch: 
 
 env:
   OPA_VERSION: "0.60.0"
