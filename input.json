@@ -3,6 +3,6 @@
   "image": "node:18-alpine",
   "securityContext": {
     "privileged": false,
-    "runAsUser": 0
+    "runAsUser": 1001
   }
 }
