@@ -2,7 +2,7 @@
   "containerName": "thesis-gitops-app",
   "image": "node:18-alpine",
   "securityContext": {
-    "privileged": false,
+    "privileged": true,
     "runAsUser": 1001
   }
 }
